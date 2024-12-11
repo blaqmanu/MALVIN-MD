@@ -44,57 +44,45 @@ created by Malvin King
  DONT COPY
 */
 
-const { cmd } = require('../command');
+
+
+
+
 const axios = require('axios');
-const { Buffer } = require('buffer');
-
-const GOOGLE_API_KEY = 'AIzaSyDebFT-uY_f82_An6bnE9WvVcgVbzwDKgU'; // Replace with your Google API key
-const GOOGLE_CX = '45b94c5cef39940d1'; // Replace with your Google Custom Search Engine ID
-
+const config = require('../config');
+const { cmd, commands } = require('../command');
 cmd({
-    pattern: "img",
-    desc: "Search and send images from Google.",
-    react: "📸",
-    category: "media",
+    pattern: "weather",
+    desc: "🌤 Get weather information for a location",
+    react: "🌤",
+    category: "other",
     filename: __filename
 },
-async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
+async (conn, mek, m, { from, q, reply }) => {
     try {
-        if (!q) return reply("Please provide a search query for the image.");
-
-        // Fetch image URLs from Google Custom Search API
-        const searchQuery = encodeURIComponent(q);
-        const url = `https://www.googleapis.com/customsearch/v1?q=${searchQuery}&cx=${GOOGLE_CX}&key=${GOOGLE_API_KEY}&searchType=image&num=5`;
-        
+        if (!q) return reply("❗ Please provide a city name. Usage: .weather [city name]");
+        const apiKey = '2d61a72574c11c4f36173b627f8cb177'; 
+        const city = q;
+        const url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
         const response = await axios.get(url);
         const data = response.data;
+        const weather = `
+❓️ *Weather Information for ${data.name}, ${data.sys.country}* 🌍
+💛 *Temperature*: ${data.main.temp}°C
+❓️ *Humidity*: ${data.main.humidity}%
+💛 *Weather*: ${data.weather[0].main}
+❓️ *Description*: ${data.weather[0].description}
+⚡️ *Wind Speed*: ${data.wind.speed} m/s
+❓️ *Pressure*: ${data.main.pressure} hPa
 
-        if (!data.items || data.items.length === 0) {
-            return reply("No images found for your query.");
-        }
-
-        // Send images
-        for (let i = 0; i < data.items.length; i++) {
-            const imageUrl = data.items[i].link;
-
-            // Download the image
-            const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-            const buffer = Buffer.from(imageResponse.data, 'binary');
-
-            // Send the image with a footer
-            await conn.sendMessage(from, {
-                image: buffer,
-                caption: `
-*💗Image ${i + 1} from your search!💗*
-
- *  MALVIN MD V2 IMAGE*
-
-> *©ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴍᴀʟᴠɪɴ ᴛᴇᴄʜ*`
-}, { quoted: mek });
-}
-
+> *©ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴍᴀʟᴠɪɴ ᴛᴇᴄʜ*
+`;
+        return reply(weather);
     } catch (e) {
-        console.error(e);
-        reply(`Error: ${e.message}`);
+        console.log(e);
+        if (e.response && e.response.status === 404) {
+            return reply("🚫 City not found. Please check the spelling and try again.");
+        }
+        return reply("⚠️ An error occurred while fetching the weather information. Please try again later.");
     }
 });

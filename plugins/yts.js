@@ -44,57 +44,42 @@ created by Malvin King
  DONT COPY
 */
 
-const { cmd } = require('../command');
-const axios = require('axios');
-const { Buffer } = require('buffer');
-
-const GOOGLE_API_KEY = 'AIzaSyDebFT-uY_f82_An6bnE9WvVcgVbzwDKgU'; // Replace with your Google API key
-const GOOGLE_CX = '45b94c5cef39940d1'; // Replace with your Google Custom Search Engine ID
-
+const config = require('../config')
+const l = console.log
+const { cmd, commands } = require('../command')
+const dl = require('@bochilteam/scraper')  
+const ytdl = require('yt-search');
+const fs = require('fs-extra')
+var videotime = 60000 // 1000 min
+const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson} = require('../lib/functions')
 cmd({
-    pattern: "img",
-    desc: "Search and send images from Google.",
-    react: "📸",
-    category: "media",
+    pattern: "yt",
+    alias: ["ytsearch"],
+    use: '.yts sameer kutti',
+    react: "🔎",
+    desc: "Search and get details from youtube.",
+    category: "search",
     filename: __filename
+
 },
-async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
-    try {
-        if (!q) return reply("Please provide a search query for the image.");
 
-        // Fetch image URLs from Google Custom Search API
-        const searchQuery = encodeURIComponent(q);
-        const url = `https://www.googleapis.com/customsearch/v1?q=${searchQuery}&cx=${GOOGLE_CX}&key=${GOOGLE_API_KEY}&searchType=image&num=5`;
-        
-        const response = await axios.get(url);
-        const data = response.data;
-
-        if (!data.items || data.items.length === 0) {
-            return reply("No images found for your query.");
-        }
-
-        // Send images
-        for (let i = 0; i < data.items.length; i++) {
-            const imageUrl = data.items[i].link;
-
-            // Download the image
-            const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-            const buffer = Buffer.from(imageResponse.data, 'binary');
-
-            // Send the image with a footer
-            await conn.sendMessage(from, {
-                image: buffer,
-                caption: `
-*💗Image ${i + 1} from your search!💗*
-
- *  MALVIN MD V2 IMAGE*
-
-> *©ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴍᴀʟᴠɪɴ ᴛᴇᴄʜ*`
-}, { quoted: mek });
+async(conn, mek, m,{from, l, quoted, body, isCmd, umarmd, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply}) => {
+try{
+if (!q) return reply('*Please give me words to search*')
+try {
+let yts = require("yt-search")
+var arama = await yts(q);
+} catch(e) {
+    l(e)
+return await conn.sendMessage(from , { text: '*Error !!*' }, { quoted: mek } )
 }
-
-    } catch (e) {
-        console.error(e);
-        reply(`Error: ${e.message}`);
-    }
+var mesaj = '';
+arama.all.map((video) => {
+mesaj += ' *🖲️' + video.title + '*\n🔗 ' + video.url + '\n\n'
+});
+await conn.sendMessage(from , { text:  mesaj }, { quoted: mek } )
+} catch (e) {
+    l(e)
+  reply('*Error !!*')
+}
 });

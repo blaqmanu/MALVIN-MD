@@ -1,8 +1,8 @@
 const {cmd , commands} = require('../command')
 
 cmd({
-    pattern: "repo",
-    desc: "repo the bot",
+    pattern: "support",
+    desc: "support bot",
     category: "main",
     react: "💖",
     filename: __filename
@@ -13,18 +13,14 @@ try{
 
 let dec = `*👋 Hello ${pushname}*
           
-📍𝖱𝖾𝗉𝗈 𝖫𝗂𝗇𝗄 ❤️‍🔥👇
 
-👨‍💻◦ https://github.com/kingmalvn/MALVIN-MD 
+*🇿🇼MALVIN-MD Support Channels💗*
 
-📍𝖯𝗅𝖾𝖺𝗌𝖾 𝖲𝗎𝖻𝗌𝖼𝗋𝗂𝖻𝖾 𝖬𝗒 𝖸𝗈𝗎𝗍𝗎𝖻𝖾 𝖢𝗁𝖺𝗇𝗇𝖾𝗅 👇
+*Youtube Channel Link:* https://www.youtube.com/@malvintech2 
 
-👨‍💻◦ https://www.youtube.com/@malvintech2 
+*Github Profile Link:* https://github.com/kingmalvn 
 
-📍𝖯𝗅𝖾𝖺𝗌𝖾 𝖥𝗈𝗅𝗅𝗈𝗐 𝖬𝗒 𝖶𝗁𝖺𝗍𝗌𝖺𝗉𝗉 𝖢𝗁𝖺𝗇𝗇𝖾𝗅s 👇
-
-👨‍💻◦ https://whatsapp.com/channel/0029Vac8SosLY6d7CAFndv3Z
-
+*Whatsapp Channel Link:* https://whatsapp.com/channel/0029Vac8SosLY6d7CAFndv3Z
 
 👨‍💻◦ https://whatsapp.com/channel/0029VayTeumIN9io4KVkqx28
 

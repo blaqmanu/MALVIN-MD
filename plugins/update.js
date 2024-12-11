@@ -44,57 +44,48 @@ created by Malvin King
  DONT COPY
 */
 
-const { cmd } = require('../command');
-const axios = require('axios');
-const { Buffer } = require('buffer');
 
-const GOOGLE_API_KEY = 'AIzaSyDebFT-uY_f82_An6bnE9WvVcgVbzwDKgU'; // Replace with your Google API key
-const GOOGLE_CX = '45b94c5cef39940d1'; // Replace with your Google Custom Search Engine ID
+
+const config = require('../config');
+let fs = require('fs');
+const { exec } = require('child_process');
+const { cmd } = require('../command');
 
 cmd({
-    pattern: "img",
-    desc: "Search and send images from Google.",
-    react: "📸",
-    category: "media",
+    pattern: "update",
+    react: "🔄",
+    desc: "Update folder from GitHub",
+    category: "system",
+    use: '.update',
     filename: __filename
-},
-async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
+}, async (conn, mek, m, { from, reply }) => {
     try {
-        if (!q) return reply("Please provide a search query for the image.");
-
-        // Fetch image URLs from Google Custom Search API
-        const searchQuery = encodeURIComponent(q);
-        const url = `https://www.googleapis.com/customsearch/v1?q=${searchQuery}&cx=${GOOGLE_CX}&key=${GOOGLE_API_KEY}&searchType=image&num=5`;
+        const repoUrl = 'https://github.com/kingmalvn/MALVIN-MD.git'; 
+        const targetFolder = 'plugins'; 
         
-        const response = await axios.get(url);
-        const data = response.data;
-
-        if (!data.items || data.items.length === 0) {
-            return reply("No images found for your query.");
+        if (!fs.existsSync(targetFolder)) {
+            fs.mkdirSync(targetFolder); 
         }
 
-        // Send images
-        for (let i = 0; i < data.items.length; i++) {
-            const imageUrl = data.items[i].link;
+        const gitCommand = fs.existsSync(`${targetFolder}/.git`)
+            ? `git -C ${targetFolder} pull`
+            : `git clone ${repoUrl} ${targetFolder}`;
 
-            // Download the image
-            const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-            const buffer = Buffer.from(imageResponse.data, 'binary');
+       
+        await new Promise((resolve, reject) => {
+            exec(gitCommand, (err, stdout, stderr) => {
+                if (err) {
+                    reject(`Git command failed: ${stderr}`);
+                } else {
+                    resolve(stdout);
+                }
+            });
+        });
 
-            // Send the image with a footer
-            await conn.sendMessage(from, {
-                image: buffer,
-                caption: `
-*💗Image ${i + 1} from your search!💗*
-
- *  MALVIN MD V2 IMAGE*
-
-> *©ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴍᴀʟᴠɪɴ ᴛᴇᴄʜ*`
-}, { quoted: mek });
-}
-
-    } catch (e) {
-        console.error(e);
-        reply(`Error: ${e.message}`);
+        
+        await conn.sendMessage(from, { text: '*✅ Update completed successfully!*' }, { quoted: mek });
+    } catch (error) {
+        console.error(error);
+        reply(`*Error during update:* ${error.message}`);
     }
 });
